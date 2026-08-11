@@ -12,83 +12,94 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* Gunakan min-height agar tidak terpotong */
             /* Tema background merah putih kemerdekaan */
             background: linear-gradient(135deg, #8b0000 0%, #111111 100%);
             font-family: Arial, sans-serif;
-            overflow: hidden;
             color: #ffffff;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
         }
 
         /* Pesan Semangat Persatuan di Atas Game */
         #theme-header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 30px; /* Jarak lebih luas dari game */
             max-width: 600px;
-            padding: 0 10px;
+            padding: 0 20px;
         }
         #theme-header h2 {
-            margin: 0 0 5px 0;
-            font-size: 20px;
+            margin: 0 0 10px 0;
+            font-size: 24px;
             color: #ff4d4d;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         #theme-header p {
             margin: 0;
-            font-size: 12px;
+            font-size: 14px;
             color: #dddddd;
             font-style: italic;
+            line-height: 1.4;
         }
 
-        /* Kotak Arena Game */
+        /* Kotak Arena Game yang Ditingkatkan */
         #game {
             width: 600px;
-            height: 200px;
-            border-bottom: 4px solid #ffffff;
+            height: 250px; /* Tinggi arena game */
+            border: 4px solid #ffffff;
             position: relative;
-            background: linear-gradient(to bottom, #1a1a1a, #2c2c2c);
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-            border-radius: 4px;
+            background: linear-gradient(to bottom, #1a1a1a, #333333);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+            border-radius: 8px;
+            overflow: hidden; /* Memastikan elemen tidak keluar kotak */
+            margin-top: 20px;
         }
         #dino {
-            width: 30px;
-            height: 50px;
+            width: 40px;
+            height: 60px;
             background-color: #ff3333; /* Kotak pemain warna merah */
             position: absolute;
             bottom: 0;
-            left: 50px;
-            border-radius: 4px;
+            left: 60px; /* Sedikit lebih ke kanan */
+            border-radius: 6px;
+            border: 2px solid #cc0000;
+            z-index: 10;
         }
         #cactus {
-            width: 20px;
-            height: 40px;
+            width: 30px;
+            height: 50px;
             background-color: #ffffff; /* Rintangan warna putih */
             position: absolute;
             bottom: 0;
-            left: 580px;
-            border-radius: 3px;
+            left: 570px;
+            border-radius: 4px;
+            z-index: 10;
         }
         .animate-cactus {
-            animation: moveCactus 1.4s infinite linear;
+            animation: moveCactus 1.3s infinite linear; /* Sedikit lebih cepat */
         }
         @keyframes moveCactus {
             0% { left: 600px; }
-            100% { left: -20px; }
+            100% { left: -30px; }
         }
         .jump {
-            animation: jumpDino 0.4s linear;
+            animation: jumpDino 0.45s linear; /* Durasi lompat */
         }
         @keyframes jumpDino {
             0% { bottom: 0; }
-            50% { bottom: 80px; }
+            50% { bottom: 100px; } /* Tinggi lompatan */
             100% { bottom: 0; }
         }
         #score {
             position: absolute;
-            top: 10px;
+            top: 15px;
             right: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #ffffff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            z-index: 20;
         }
         #game-over-text {
             display: none;
@@ -99,9 +110,27 @@
             text-align: center;
             font-weight: bold;
             color: #ff4d4d;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px 40px;
+            border-radius: 10px;
+            border: 2px solid #ff4d4d;
+            z-index: 30;
+            line-height: 1.5;
+        }
+        
+        /* Responsif untuk HP */
+        @media screen and (max-width: 650px) {
+            #game {
+                width: 90%; /* Arena game menyesuaikan layar HP */
+                height: 200px;
+            }
+            #theme-header h2 { font-size: 20px; }
+            #theme-header p { font-size: 12px; }
+            #dino { width: 30px; height: 50px; left: 40px; }
+            #cactus { width: 25px; height: 40px; }
+            @keyframes jumpDino {
+                50% { bottom: 80px; } /* Lompatan lebih rendah di HP */
+            }
         }
     </style>
 </head>
@@ -119,7 +148,7 @@
         <div id="score">Score: 0</div>
         <div id="game-over-text">
             GAME OVER<br>
-            <span style="font-size: 12px; font-weight: normal; color: #fff;">Tap atau Tekan Spasi untuk Ulang</span>
+            <span style="font-size: 14px; font-weight: normal; color: #fff;">Tap atau Tekan Spasi untuk Ulang</span>
         </div>
     </div>
 
@@ -142,7 +171,7 @@
                 dino.classList.add("jump");
                 setTimeout(function () {
                     dino.classList.remove("jump");
-                }, 400);
+                }, 450);
             }
         }
 
@@ -168,7 +197,8 @@
             let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
             let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("left"));
 
-            if (cactusLeft > 40 && cactusLeft < 70 && dinoBottom <= 40) {
+            // Aturan deteksi tabrakan yang lebih akurat
+            if (cactusLeft > 30 && cactusLeft < 70 && dinoBottom <= 40) {
                 isGameOver = true;
                 clearInterval(scoreInterval);
                 cactus.classList.remove("animate-cactus");
