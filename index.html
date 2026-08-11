@@ -1,75 +1,160 @@
-const dino = document.getElementById("dino");
-const cactus = document.getElementById("cactus");
-const gameOverText = document.getElementById("game-over-text");
-const scoreElement = document.getElementById("score");
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Box Run</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        #game {
+            width: 600px;
+            height: 200px;
+            border-bottom: 3px solid #555;
+            position: relative;
+            background-color: #fff;
+        }
+        #dino {
+            width: 30px;
+            height: 50px;
+            background-color: #555;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+        }
+        #cactus {
+            width: 20px;
+            height: 40px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+            left: 580px;
+        }
+        .animate-cactus {
+            animation: moveCactus 1.5s infinite linear;
+        }
+        @keyframes moveCactus {
+            0% { left: 600px; }
+            100% { left: -20px; }
+        }
+        .jump {
+            animation: jumpDino 0.4s linear;
+        }
+        @keyframes jumpDino {
+            0% { bottom: 0; }
+            50% { bottom: 80px; }
+            100% { bottom: 0; }
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-weight: bold;
+        }
+        #game-over-text {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
 
-let isGameOver = false;
-let scoreInterval;
+    <div id="game">
+        <div id="dino"></div>
+        <div id="cactus" class="animate-cactus"></div>
+        <div id="score">Score: 0</div>
+        <div id="game-over-text">
+            GAME OVER<br>
+            <span style="font-size: 14px; font-weight: normal;">Tap atau Tekan Spasi untuk Ulang</span>
+        </div>
+    </div>
 
-// Fungsi Lompat
-function jump() {
-    if (!dino.classList.contains("jump") && !isGameOver) {
-        dino.classList.add("jump");
-        setTimeout(function () {
-            dino.classList.remove("jump");
-        }, 300);
-    }
-}
+    <script>
+        const dino = document.getElementById("dino");
+        const cactus = document.getElementById("cactus");
+        const scoreElement = document.getElementById("score");
+        const gameOverText = document.getElementById("game-over-text");
+        
+        let isGameOver = false;
+        let scoreInterval;
+        let score = 0;
 
-// Fungsi Restart Game
-function restartGame() {
-    isGameOver = false;
-    gameOverText.style.display = "none";
-    cactus.classList.add("animate-cactus");
-    scoreElement.innerText = "Score: 0";
-    startScore();
-}
+        function jump() {
+            if (isGameOver) {
+                resetGame();
+                return;
+            }
+            if (!dino.classList.contains("jump")) {
+                dino.classList.add("jump");
+                setTimeout(function () {
+                    dino.classList.remove("jump");
+                }, 400);
+            }
+        }
 
-// Deteksi Tombol Spasi di Keyboard
-document.addEventListener("keydown", function (event) {
-    if (event.code === "Space") {
-        event.preventDefault(); // Mencegah layar scroll ke bawah saat tekan spasi
-        if (isGameOver) {
-            restartGame();
-        } else {
+        function startScore() {
+            score = 0;
+            scoreInterval = setInterval(() => {
+                if (!isGameOver) {
+                    score++;
+                    scoreElement.innerText = "Score: " + score;
+                }
+            }, 200);
+        }
+
+        function resetGame() {
+            isGameOver = false;
+            gameOverText.style.display = "none";
+            cactus.classList.add("animate-cactus");
+            startScore();
+        }
+
+        // Deteksi Tabrakan
+        function checkCollision() {
+            let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+            let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("left"));
+
+            if (cactusLeft > 40 && cactusLeft < 70 && dinoBottom <= 40) {
+                isGameOver = true;
+                clearInterval(scoreInterval);
+                cactus.classList.remove("animate-cactus");
+                gameOverText.style.display = "block";
+            }
+        }
+
+        setInterval(checkCollision, 10);
+        startScore();
+
+        // Kontrol Keyboard (Spasi)
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "Space") {
+                event.preventDefault();
+                jump();
+            }
+        });
+
+        // Kontrol Sentuh / Klik untuk HP
+        document.addEventListener("touchstart", function() {
             jump();
-        }
-    }
-});
+        });
 
-// Sistem Skor
-function startScore() {
-    let score = 0;
-    scoreInterval = setInterval(() => {
-        if (!isGameOver) {
-            score++;
-            scoreElement.innerText = "Score: " + score;
-        }
-    }, 200);
-}
-
-// Deteksi Tabrakan
-function checkCollision() {
-    let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
-    let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("left"));
-
-    if (cactusLeft > 40 && cactusLeft < 90 && dinoBottom <= 0) {
-        isGameOver = true;
-        clearInterval(scoreInterval);
-        cactus.classList.remove("animate-cactus");
-        gameOverText.style.display = "block";
-    }
-}
-
-// Mulai Cek Tabrakan Terus-menerus
-setInterval(checkCollision, 10);
-startScore();
-// Tambahkan ini agar bisa dimainkan dengan sentuhan di HP
-document.addEventListener("touchstart", function() {
-    jump();
-});
-
-// Atau jika ingin bisa diklik pakai mouse juga di komputer:
-document.addEventListener("click", function() {
-    jump();
-});
+        document.addEventListener("click", function() {
+            jump();
+        });
+    </script>
+</body>
+</html>
