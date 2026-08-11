@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Dinosaurus</title>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: monospace;
+        }
+        #game-container {
+            width: 600px;
+            height: 200px;
+            background-color: #ffffff;
+            border-bottom: 3px solid #555;
+            position: relative;
+            overflow: hidden;
+        }
+        #backgroun-teks {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            font-weight: bold;
+            color: #f0f0f0;
+            z-index: 0;
+            user-select: none;
+        }
+        #dino {
+            width: 40px;
+            height: 45px;
+            background-color: #555;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            z-index: 1;
+        }
+        #cactus {
+            width: 20px;
+            height: 40px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+            left: 600px;
+            z-index: 1;
+        }
+        .animate-cactus {
+            animation: moveCactus 1.5s infinite linear;
+        }
+        @keyframes moveCactus {
+            0% { left: 600px; }
+            100% { left: -30px; }
+        }
+        .jump {
+            animation: jumpAnim 0.3s linear;
+        }
+        @keyframes jumpAnim {
+            0% { bottom: 0; }
+            50% { bottom: 80px; }
+            100% { bottom: 0; }
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 2;
+        }
+        #game-over-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #333;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="backgroun-teks">BOX HASAN RUN</div>
+        <div id="score">Score: 0</div>
+        <div id="dino"></div>
+        <div id="cactus" class="animate-cactus"></div>
+        <div id="game-over-text">GAME OVER<br><span style="font-size: 14px;">Press Space to Restart</span></div>
+    </div>
+
+    <script>
+        const dino = document.getElementById("dino");
+        const cactus = document.getElementById("cactus");
+        const gameOverText = document.getElementById("game-over-text");
+        const scoreElement = document.getElementById("score");
+
+        let isGameOver = false;
+        let scoreInterval;
+
+        function jump() {
+            if (!dino.classList.contains("jump") && !isGameOver) {
+                dino.classList.add("jump");
+                setTimeout(() => {
+                    dino.classList.remove("jump");
+                }, 300);
+            }
+        }
+
+        function restartGame() {
+            isGameOver = false;
+            gameOverText.style.display = "none";
+            cactus.classList.add("animate-cactus");
+            scoreElement.innerText = "Score: 0";
+            startScore();
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.code === "Space") {
+                event.preventDefault();
+                if (isGameOver) {
+                    restartGame();
+                } else {
+                    jump();
+                }
+            }
+        });
+
+        function startScore() {
+            let score = 0;
+            scoreInterval = setInterval(() => {
+                if (!isGameOver) {
+                    score++;
+                    scoreElement.innerText = "Score: " + score;
+                }
+            }, 200);
+        }
+
+        function checkCollision() {
+            let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+            let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("left"));
+
+            if (cactusLeft > 40 && cactusLeft < 80 && dinoBottom <= 0) {
+                isGameOver = true;
+                clearInterval(scoreInterval);
+                cactus.classList.remove("animate-cactus");
+                gameOverText.style.display = "block";
+            }
+        }
+
+        setInterval(checkCollision, 10);
+        startScore();
+    </script>
+</body>
+</html>
